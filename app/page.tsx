@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma';
+import Link from 'next/link';
 
 export default async function HomePage() {
   const products = await prisma.product.findMany({
@@ -12,6 +13,9 @@ export default async function HomePage() {
 
   return (
     <main className="p-8">
+      <Link className="mb-4 inline-block" href="/admin">
+        Quản trị
+      </Link>
       <h1 className="text-3xl font-bold mb-4">
         Sản phẩm mới nhất
       </h1>
