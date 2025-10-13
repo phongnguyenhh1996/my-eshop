@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { IconHome } from "@tabler/icons-react"
 import Link from "next/link"
 
 export function SiteHeader() {
@@ -19,6 +20,7 @@ export function SiteHeader() {
               href="/"
               className="dark:text-foreground"
             >
+              <IconHome className="mr-1" />
               Xem cửa hàng
             </Link>
           </Button>

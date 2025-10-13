@@ -1,70 +1,59 @@
+// file: prisma/seed.ts
 import { PrismaClient } from '@prisma/client'
+import slugify from 'slugify';
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('Bắt đầu quá trình seeding...')
-
-  // Xóa dữ liệu cũ để tránh trùng lặp (tùy chọn)
-  await prisma.product.deleteMany({})
-  await prisma.category.deleteMany({})
+  console.log('Start seeding...');
   
-  // Tạo danh mục mẫu
-  const aoThunCategory = await prisma.category.create({
+  // Clean up previous data to make the script re-runnable.
+  await prisma.product.deleteMany({});
+  await prisma.category.deleteMany({});
+  console.log('Deleted existing data.');
+
+  // Create a category with its translations.
+  const tShirtCategory = await prisma.category.create({
     data: {
-      name: 'Áo Thun',
+      translations: {
+        create: [
+          { locale: 'vi', name: 'Áo Thun' },
+          { locale: 'en', name: 'T-Shirts' },
+        ]
+      }
     }
-  })
+  });
+  console.log('Created categories.');
 
-  const aoSoMiCategory = await prisma.category.create({
-    data: {
-      name: 'Áo Sơ Mi',
-    }
-  })
+  // Prepare product names for different languages.
+  const productNameVI = 'Áo Thun Cotton Basic Trắng';
+  const productNameEN = 'Basic White Cotton T-Shirt';
 
-  const quanJeanCategory = await prisma.category.create({
-    data: {
-      name: 'Quần Jean',
-    }
-  })
-
-  console.log('Đã tạo xong danh mục.')
-
-  // Tạo sản phẩm mẫu
+  // Create a product with its translations.
   await prisma.product.create({
     data: {
-      name: 'Áo Thun Cotton Basic Trắng',
-      description: 'Chất liệu 100% cotton thoáng mát, phù hợp cho mọi hoạt động.',
       price: 250000,
-      categoryId: aoThunCategory.id,
-      images: [], // Thêm link ảnh nếu có
-      slug: 'ao-thun-cotton-basic-trang',
+      stock: 100,
+      categoryId: tShirtCategory.id,
+      translations: {
+        create: [
+          {
+            locale: 'vi',
+            name: productNameVI,
+            description: 'Chất liệu 100% cotton thoáng mát, phù hợp cho mọi hoạt động.',
+            slug: slugify(productNameVI, { lower: true, strict: true, locale: 'vi' })
+          },
+          {
+            locale: 'en',
+            name: productNameEN,
+            description: '100% breathable cotton material, suitable for all activities.',
+            slug: slugify(productNameEN, { lower: true, strict: true })
+          }
+        ]
+      }
     }
-  })
-
-  await prisma.product.create({
-    data: {
-      name: 'Áo Sơ Mi Oxford Dài Tay Xanh',
-      description: 'Thiết kế lịch lãm, chất vải oxford dày dặn, đứng form.',
-      price: 450000,
-      categoryId: aoSoMiCategory.id,
-      images: [],
-      slug: 'ao-so-mi-oxford-dai-tay-xanh',
-    }
-  })
-  
-  await prisma.product.create({
-    data: {
-      name: 'Quần Jean Slim-fit Đen',
-      description: 'Form quần ôm vừa vặn, tôn dáng. Chất liệu jean co giãn thoải mái.',
-      price: 550000,
-      categoryId: quanJeanCategory.id,
-      images: [],
-      slug: 'quan-jean-slim-fit-den',
-    }
-  })
-
-  console.log('Đã tạo xong sản phẩm.')
-  console.log('Quá trình seeding hoàn tất.')
+  });
+  console.log('Created products.');
+  console.log('Seeding finished.');
 }
 
 main()

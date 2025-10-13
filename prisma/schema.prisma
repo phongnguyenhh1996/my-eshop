@@ -14,25 +14,64 @@ datasource db {
 // APP MODELS (SINGLE STORE)
 // ==================================
 
+// This model holds non-translatable category data.
 model Category {
   id       String    @id @default(cuid())
-  name     String    @unique
   products Product[]
+
+  // The 'name' is moved to the translation table below.
+  // A category will have a list of its translations.
+  translations CategoryTranslation[]
 }
 
+// This new model holds the translations for a Category.
+model CategoryTranslation {
+  id         String   @id @default(cuid())
+  locale     String   // e.g., 'en', 'vi'
+  name       String
+
+  // Link back to the parent Category.
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  // Ensures a category can only have one name per language.
+  @@unique([categoryId, locale])
+}
+
+// This model holds non-translatable product data.
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  stock       Int      @default(0)
-  description String?  @db.Text
+  id          String    @id @default(cuid())
   price       Float
   images      String[]
+  stock       Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
+  // Translatable fields are moved to the table below.
+  translations ProductTranslation[]
+
+  // Relations to other tables remain.
   categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-
+  category    Category  @relation(fields: [categoryId], references: [id])
   OrderItems  OrderItem[]
+}
+
+// This new model holds the translations for a Product.
+model ProductTranslation {
+  id          String  @id @default(cuid())
+  locale      String  // e.g., 'en', 'vi'
+  name        String
+  description String? @db.Text
+  slug        String
+
+  // Link back to the parent Product.
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Ensures a product has one set of translations per locale,
+  // and that the slug is unique for each language.
+  @@unique([productId, locale])
+  @@unique([locale, slug])
 }
 
 model Order {
@@ -63,7 +102,7 @@ model PageLayout {
 // ==================================
 // AUTH MODELS (NextAuth.js)
 // ==================================
-// (Các model của NextAuth không thay đổi)
+//
 model Account {
   id                String  @id @default(cuid())
   userId            String
