@@ -1,5 +1,21 @@
 {
   "HomePage": {
-    "admin": "Admin"
+    "admin": "Admin",
+    "about_us": "About Us",
+    "contact_us": "Contact Us",
+    "blog": "Blog",
+    "new_products": "New Products",
+    "dresses": "Dresses",
+    "tops": "Tops",
+    "sale": "Sale",
+    "best_sellers": "Best Sellers",
+    "free_shipping": "Free Shipping",
+    "on_all_orders_over_100": "On all orders over $100",
+    "easy_returns": "Easy Returns",
+    "30_day_return_policy": "30-day return policy",
+    "support_24_7": "24/7 Support",
+    "we_are_here_to_help": "We're here to help",
+    "best_deals": "Best Deals",
+    "save_up_to_50_off": "Save up to 50% off"
   }
 }

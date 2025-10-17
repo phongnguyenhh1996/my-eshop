@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import {NextIntlClientProvider} from 'next-intl';
-import { Geist, Geist_Mono } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["vietnamese"], // Specify the vietnamese subset for better performance
+  display: 'swap',
+  variable: '--font-sans', // The variable name can stay the same
+  weight: ['400', '500', '700'] // Load the weights you need
 });
 
 export const metadata: Metadata = {
@@ -19,14 +16,15 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+  children, params: { locale }
 }: Readonly<{
   children: React.ReactNode;
+  params: { locale: string };
 }>) {
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${beVietnamPro.variable} antialiased`}
       >
         <NextIntlClientProvider>
           {children}

@@ -1,5 +1,21 @@
 {
   "HomePage": {
-    "admin": "Quản trị"
+    "admin": "Quản trị",
+    "about_us": "Về chúng tôi",
+    "contact_us": "Liên hệ",
+    "blog": "Blog",
+    "new_products": "Sản phẩm mới",
+    "dresses": "Váy",
+    "tops": "Áo",
+    "sale": "Giảm giá",
+    "best_sellers": "Bán chạy",
+    "free_shipping": "Miễn phí vận chuyển",
+    "on_all_orders_over_100": "Cho tất cả đơn hàng trên $100",
+    "easy_returns": "Dễ dàng đổi trả",
+    "30_day_return_policy": "Chính sách đổi trả trong 30 ngày",
+    "support_24_7": "Hỗ trợ 24/7",
+    "we_are_here_to_help": "Chúng tôi luôn sẵn sàng hỗ trợ",
+    "best_deals": "Ưu đãi tốt nhất",
+    "save_up_to_50_off": "Tiết kiệm lên đến 50%"
   }
 }
