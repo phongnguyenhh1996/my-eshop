@@ -21,6 +21,7 @@ type CarouselProps = {
   orientation?: "horizontal" | "vertical";
   setApi?: (api: CarouselApi) => void;
   autoPlay?: boolean;
+  autoPlayDelay?: number;
 };
 
 type CarouselContextProps = {
@@ -51,6 +52,7 @@ function Carousel({
   className,
   children,
   autoPlay,
+  autoPlayDelay = 2000,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
   const [carouselRef, api] = useEmblaCarousel(
@@ -61,7 +63,7 @@ function Carousel({
     autoPlay
       ? [
           Autoplay({
-            delay: 2000,
+            delay: autoPlayDelay,
           }),
         ]
       : undefined
