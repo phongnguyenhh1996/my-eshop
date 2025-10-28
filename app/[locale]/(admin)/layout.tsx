@@ -1,11 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
-import { DataTable } from "@/components/data-table";
-import { SectionCards } from "@/components/section-cards";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-import data from "./data.json";
 
 export default function LayoutAdmin({
   children,
@@ -13,7 +9,7 @@ export default function LayoutAdmin({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider
+      <SidebarProvider
       style={
         {
           "--sidebar-width": "calc(var(--spacing) * 72)",
@@ -30,11 +26,6 @@ export default function LayoutAdmin({
               <div className="px-4 lg:px-6">
                 {children}
               </div>
-              <SectionCards />
-              <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
-              </div>
-              <DataTable data={data} />
             </div>
           </div>
         </div>

@@ -41,13 +41,8 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/admin",
-      icon: IconDashboard,
-    },
-    {
-      title: "Create Product",
-      url: "/admin/products/new",
+      title: "Products",
+      url: "/admin/products",
       icon: IconListDetails,
     },
     {

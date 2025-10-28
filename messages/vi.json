@@ -22,5 +22,9 @@
     "view_all_products": "Xem tất cả sản phẩm",
     "featured_collections": "Bộ sưu tập nổi bật",
     "our_lastest_blog": "Blog mới nhất của chúng tôi"
+  },
+  "admin": {
+    "edit_product": "Chỉnh sửa Sản phẩm",
+    "save_changes": "Lưu Thay đổi"
   }
 }

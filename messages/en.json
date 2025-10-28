@@ -22,5 +22,9 @@
     "view_all_products": "View all products",
     "featured_collections": "Featured Collections",
     "our_lastest_blog": "Our Lastest Blogs"
+  },
+  "admin": {
+    "edit_product": "Edit Product",
+    "save_changes": "Save Changes"
   }
 }
