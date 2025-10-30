@@ -107,3 +107,29 @@ export async function deleteProduct(productId: string) {
     return { success: false, error: "Failed to delete product." };
   }
 }
+
+export async function deleteManyProducts(productIds: string[]) {
+  if (!productIds || productIds.length === 0) {
+    return { success: false, error: "No product IDs provided." };
+  }
+
+  try {
+    const deleteResult = await prisma.product.deleteMany({
+      where: {
+        id: {
+          in: productIds, // Use the 'in' filter to delete all IDs in the array
+        },
+      },
+    });
+
+    // Revalidate all paths that show products
+    revalidatePath("/admin/products");
+    revalidatePath("/");
+    revalidatePath("/san-pham", "layout");
+
+    return { success: true, count: deleteResult.count };
+  } catch (error) {
+    console.error("Failed to delete products:", error);
+    return { success: false, error: "Failed to delete products." };
+  }
+}

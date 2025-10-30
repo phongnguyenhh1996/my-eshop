@@ -23,9 +23,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { ProductForm } from "../components/ProductForm";
 
 // This is a Server Component that also contains a Server Action.
 export default async function AddProductPage() {
+  const supportedLocales = ["vi", "en"];
   // Fetch categories to display in the dropdown
   const categories = await prisma.category.findMany({
     include: {
@@ -38,27 +40,33 @@ export default async function AddProductPage() {
     "use server";
 
     // ... (Your existing addProduct logic is unchanged)
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
     const stock = parseInt(formData.get("stock") as string);
     const categoryId = formData.get("categoryId") as string;
+    const imageUrl = formData.get("imageUrl") as string;
+    const slugs: { [key: string]: string } = {};
+    const translationsToUpsert = [];
 
-    if (!name || !price || !stock || !categoryId) {
-      return; // Or handle error
+    // Loop over each language to get its form data
+    for (const loc of supportedLocales) {
+      const name = formData.get(`name.${loc}`) as string;
+      const description = formData.get(`description.${loc}`) as string;
+
+      if (name) {
+        const slug = slugify(name, { lower: true, strict: true, locale: loc });
+        slugs[loc] = slug;
+
+        translationsToUpsert.push({ locale: loc, name, description, slug });
+      }
     }
-
-    const slug = slugify(name, { lower: true, strict: true, locale: "vi" });
-
+    
     await prisma.product.create({
       data: {
-        translations: {
-          create: [{ locale: "en", name, description, slug }]
-        },
+        translations: { create: translationsToUpsert },
         price,
         stock,
         categoryId,
-        images: []
+        images: imageUrl ? [imageUrl] : [],
       },
     });
 
@@ -76,70 +84,7 @@ export default async function AddProductPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form action={addProduct} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Tên sản phẩm</Label>
-            <Input
-              id="name"
-              name="name"
-              placeholder="Ví dụ: Áo Thun Cotton"
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Mô tả</Label>
-            <Textarea
-              id="description"
-              name="description"
-              placeholder="Mô tả chi tiết về sản phẩm..."
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="price">Giá</Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                placeholder="Ví dụ: 250000"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="stock">Tồn kho</Label>
-              <Input
-                id="stock"
-                name="stock"
-                type="number"
-                placeholder="Ví dụ: 100"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="categoryId">Danh mục</Label>
-            {/* The Select component has a more complex structure */}
-            <Select name="categoryId" required>
-              <SelectTrigger id="categoryId">
-                <SelectValue placeholder="Chọn một danh mục" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.translations[0]?.name || "Unnamed Category"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button type="submit" className="w-full">
-            Thêm sản phẩm
-          </Button>
-        </form>
+        <ProductForm categories={categories} action={addProduct} />
       </CardContent>
     </Card>
   );

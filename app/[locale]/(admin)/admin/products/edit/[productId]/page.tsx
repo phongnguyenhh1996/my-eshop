@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/image-uploader";
+import { ProductForm } from "../../components/ProductForm";
 
 // Helper function to find a specific translation
 function getTranslation(
@@ -131,115 +132,11 @@ export default async function EditProductPage({
       </CardHeader>
       <CardContent>
         {/* 4. Bind ONLY the productId to the action */}
-        <form
+        <ProductForm
+          product={product}
+          categories={categories}
           action={updateProduct.bind(null, product.id)}
-          className="space-y-6"
-        >
-          {/* Non-translatable fields stay outside the tabs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2 col-span-2">
-              <Label htmlFor="price">Image</Label>
-              <ImageUploader
-                name="imageUrl"
-                defaultValue={product.images[0]} // Pass the first image as default
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="price">Price</Label>
-              <Input
-                id="price"
-                name="price"
-                type="number"
-                required
-                defaultValue={product.price}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="stock">Stock</Label>
-              <Input
-                id="stock"
-                name="stock"
-                type="number"
-                required
-                defaultValue={product.stock}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="categoryId">Category</Label>
-            <Select
-              name="categoryId"
-              required
-              defaultValue={product.categoryId}
-            >
-              <SelectTrigger id="categoryId">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.translations[0]?.name || "Unnamed Category"}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* 4. Use Tabs for translatable fields */}
-          <Tabs defaultValue={locale} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="vi">Tiếng Việt (VI)</TabsTrigger>
-              <TabsTrigger value="en">English (EN)</TabsTrigger>
-            </TabsList>
-            {["vi", "en"].map((loc) => (
-              <TabsContent key={loc} value={loc} className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor={`name.${loc}`}>
-                    Product Name ({loc.toUpperCase()})
-                  </Label>
-                  <Input
-                    id={`name.${loc}`}
-                    name={`name.${loc}`}
-                    defaultValue={
-                      getTranslation(product.translations, loc).name
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`description.${loc}`}>
-                    Description ({loc.toUpperCase()})
-                  </Label>
-                  <Textarea
-                    id={`description.${loc}`}
-                    name={`description.${loc}`}
-                    defaultValue={
-                      getTranslation(product.translations, loc).description ||
-                      ""
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor={`slug.${loc}`}>
-                    Slug ({loc.toUpperCase()})
-                  </Label>
-                  <Input
-                    id={`slug.${loc}`}
-                    name={`slug.${loc}`}
-                    defaultValue={
-                      getTranslation(product.translations, loc).slug
-                    }
-                  />
-                </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-
-          <Button type="submit" className="w-full">
-            {t("save_changes")}
-          </Button>
-        </form>
+        />
       </CardContent>
     </Card>
   );
