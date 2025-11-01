@@ -30,8 +30,7 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton tooltip={item.title} isActive={pathname.startsWith(item.url)}>
-                {item.icon && <item.icon />}
-                <Link href={item.url}>{item.title}</Link>
+                <Link className="w-full flex items-center gap-2" href={item.url}>{item.icon && <item.icon className="w-4 h-4" />} {item.title}</Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
