@@ -141,3 +141,34 @@ model VerificationToken {
   expires    DateTime
   @@unique([identifier, token])
 }
+
+// MODEL 1: THE ELEMENT DEFINITION (BLUEPRINT)
+// This stores the 'mold' for an element.
+// e.g., Name: "Hero Banner", Identifier: "hero",
+//       Schema: [{ "name": "title", "type": "text" }, { "name": "image", "type": "image" }]
+model ElementBlueprint {
+  id         String   @id @default(cuid())
+  name       String // The human-friendly name, e.g., "Hero Banner"
+  identifier String   @unique // The machine-friendly ID, e.g., "hero_banner"
+  
+  // This JSON field stores the structure of the element
+  schema     Json
+  
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+// MODEL 2: THE PAGE CONTENT (INSTANCE)
+// This stores the actual content for a page, like the homepage.
+model Page {
+  id    String @id @default(cuid())
+  name  String // e.g., "Homepage"
+  slug  String @unique // e.g., "/" or "about-us"
+  
+  // This JSON field stores the list of elements on this page
+  // Example: [{ "elementId": "uuid", "type": "hero_banner", "data": { "title": "..." } }]
+  content Json?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

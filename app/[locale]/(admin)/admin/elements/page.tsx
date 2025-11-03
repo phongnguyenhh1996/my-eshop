@@ -1,0 +1,26 @@
+import { DataTable } from "@/components/data-table";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { IconPlus } from "@tabler/icons-react";
+import { columns } from "./columns";
+import { deleteManyProducts } from "@/app/actions/product-actions";
+import { getElementsForAdmin } from "@/lib/queries/elements";
+
+// This is a Server Component that also contains a Server Action.
+export default async function ListElementPage() {
+  // Fetch products with translations and category data
+  const elements = await getElementsForAdmin()
+
+  // The JSX is now refactored with Shadcn/UI components
+  return (
+    <div>
+      <h1 className="text-2xl font-bold mb-4 flex items-center">
+        Products
+        <Button className="ml-4">
+          <Link className="flex" href="/admin/elements/new"><IconPlus className="mr-2" /> Add New Element</Link>
+        </Button>
+      </h1>
+      <DataTable columns={columns} data={elements || []} onDeleteSelected={deleteManyProducts}/>
+    </div>
+  );
+}

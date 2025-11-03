@@ -46,8 +46,8 @@ const data = {
       icon: IconListDetails,
     },
     {
-      title: "Analytics",
-      url: "#",
+      title: "Element Blueprints",
+      url: "/admin/elements",
       icon: IconChartBar,
     },
     {
