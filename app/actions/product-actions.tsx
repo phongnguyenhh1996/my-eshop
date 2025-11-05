@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
+import { getCategories } from "@/lib/queries/categories";
 
 const supportedLocales = ["vi", "en"]; // Define supported languages
 
@@ -131,5 +132,152 @@ export async function deleteManyProducts(productIds: string[]) {
   } catch (error) {
     console.error("Failed to delete products:", error);
     return { success: false, error: "Failed to delete products." };
+  }
+}
+
+type TikTokProductRow = {
+  product_id: string;
+  category: string;
+  product_name: string;
+  product_description: string;
+  price: string;
+  quantity: string;
+  seller_sku: string;
+  sku_id: string;
+  main_image: string;
+  [key: string]: unknown; // Allow other properties
+};
+
+function isTikTokProductRow(obj: unknown): obj is TikTokProductRow {
+  if (typeof obj !== 'object' || obj === null) return false;
+  return 'product_id' in obj && 'product_name' in obj && 'price' in obj && 'quantity' in obj;
+}
+
+export async function syncProductsFromExcel(products: unknown[]) {
+  // 1. Fetch all existing categories to act as a cache.
+  const allMyCategories = await getCategories("vi");
+
+  // 2. Fetch all existing 'vi' product names to check for duplicates.
+  const existingProductTranslations = await prisma.productTranslation.findMany({
+    where: { locale: 'vi' },
+    select: { name: true }
+  });
+  // Use a Set for fast lookup
+  const existingProductNames = new Set(existingProductTranslations.map(p => p.name));
+  
+  // 3. Set a fallback category ID
+  const defaultCategoryId = "0"; // <<< PLEASE REPLACE THIS
+
+  let createdCount = 0;
+  let skippedCount = 0;
+
+  try {
+    for (const item of products) {
+      if (!isTikTokProductRow(item)) {
+        continue; // Skip unknown objects
+      }
+      
+      const row = item;
+
+      // 4. Skip junk/header rows
+      if (!row.product_id || row.product_id === 'ID sản phẩm' || String(row.product_id).startsWith('V3')) {
+        continue;
+      }
+
+      const name = row.product_name;
+      const price = parseFloat(row.price);
+      const stock = parseInt(row.quantity);
+      if (!name || isNaN(price) || isNaN(stock)) {
+        console.warn("Skipping row with invalid data:", row.product_name);
+        continue;
+      }
+      
+      // 5. --- NEW LOGIC: Check for duplicates by name ---
+      if (existingProductNames.has(name)) {
+        console.log(`Skipping duplicate product: ${name}`);
+        skippedCount++;
+        continue; // Skip this product, it already exists
+      }
+      // --- END OF NEW LOGIC ---
+
+      // 6. Find or create category (same as before)
+      let categoryId: string;
+      const tiktokCategoryName = row.category.split(' ');
+      tiktokCategoryName.pop();
+      const categoryName = tiktokCategoryName.join(' ');
+
+      if (!tiktokCategoryName) {
+        categoryId = defaultCategoryId;
+      } else {
+        const myCategory = allMyCategories.find(c => c.translations[0]?.name === categoryName || c.translations[1]?.name === categoryName);
+        if (myCategory) {
+          categoryId = myCategory.id;
+        } else {
+          const newCategory = await prisma.category.create({
+            data: {
+              translations: {
+                create: [
+                  { locale: "vi", name: categoryName },
+                  { locale: "en", name: categoryName } 
+                ]
+              }
+            },
+            include: {
+              translations: { where: { locale: "vi" } }
+            }
+          });
+          categoryId = newCategory.id;
+          allMyCategories.push(newCategory);
+        }
+      }
+
+      // 7. Collect images
+      const imageUrls: string[] = [];
+      if (row.main_image) imageUrls.push(row.main_image);
+      for (let i = 2; i <= 9; i++) {
+        const key = `image_${i}`;
+        if (row[key] && typeof row[key] === 'string') {
+          imageUrls.push(row[key] as string);
+        }
+      }
+
+      // 8. Prepare translation data
+      const productNameVI = name;
+      const productNameEN = name; // Default 'en' name to 'vi' name
+      const descriptionVI = row.product_description || "";
+      const descriptionEN = row.product_description || "";
+      
+      const translationData = [
+         { locale: "vi", name: productNameVI, description: descriptionVI, slug: slugify(productNameVI, { lower: true, strict: true, locale: 'vi' }) },
+         { locale: "en", name: productNameEN, description: descriptionEN, slug: slugify(productNameEN, { lower: true, strict: true }) }
+      ];
+
+      // 9. Perform 'create' (no longer 'upsert')
+      await prisma.product.create({
+        data: {
+          // No SKU field is included
+          price, 
+          stock, 
+          images: imageUrls, 
+          categoryId: categoryId,
+          translations: {
+            create: translationData
+          }
+        },
+      });
+      createdCount++;
+    }
+
+    revalidatePath("/admin/products");
+    revalidatePath("/");
+    
+    return { success: true, count: createdCount, skipped: skippedCount };
+
+  } catch (error: unknown) {
+    console.error("Sync failed:", error);
+    if (error instanceof Error) {
+      return { success: false, error: error.message };
+    }
+    return { success: false, error: "An unknown error occurred during sync." };
   }
 }
