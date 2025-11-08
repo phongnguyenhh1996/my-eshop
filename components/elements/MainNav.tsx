@@ -25,26 +25,42 @@ import {
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { useTranslations } from "next-intl";
+type NavItem = {
+  id: string;
+  key: string;
+  value: string;
+};
 
-export function MainNav() {
-    const t = useTranslations("HomePage");
+type Navname = {
+  id: string;
+  value: NavItem[];
+};
+interface MainNavProps {
+  nav: Navname[];
+}
+
+export function MainNav({ nav }: MainNavProps) {
+  const t = useTranslations("HomePage");
+
+  function getValuebyKey(item: Navname, key: string): string {
+    return item.value.find(v => v.key === key)?.value || ''
+  }
+  
   return (
     <div className="container mx-auto px-3 flex place-content-between">
       <img src="/logo.svg" alt="My E-Shop Logo" width="150" height="40" />
       <NavigationMenu className="order-2 lg:order-1">
         <NavigationMenuList className="uppercase">
-          {["new_products", "dresses", "tops", "sale", "best_sellers"].map(
-            (item) => (
-              <NavigationMenuItem className="hidden lg:block" key={item}>
-                <NavigationMenuLink
-                  asChild
-                  className={navigationMenuTriggerStyle()}
-                >
-                  <Link href="/">{t(item)}</Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )
-          )}
+          {nav.map((item) => (
+            <NavigationMenuItem className="hidden lg:block" key={item.id}>
+              <NavigationMenuLink
+                asChild
+                className={navigationMenuTriggerStyle()}
+              >
+                <Link href={getValuebyKey(item, 'link')}>{getValuebyKey(item, 'name')}</Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          ))}
           <NavigationMenuItem className="lg:hidden">
             <Drawer direction="left">
               <DrawerTrigger asChild>

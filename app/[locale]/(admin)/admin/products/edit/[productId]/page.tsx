@@ -5,47 +5,13 @@ import slugify from "slugify";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
-// 1. Import Tabs components
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { ImageUploader } from "@/components/image-uploader";
 import { ProductForm } from "../../components/ProductForm";
-
-// Helper function to find a specific translation
-function getTranslation(
-  translations: {
-    locale: string;
-    name: string;
-    description: string | null;
-    slug: string;
-  }[],
-  locale: string
-) {
-  return (
-    translations.find((t) => t.locale === locale) || {
-      name: "",
-      description: "",
-      slug: "",
-    }
-  );
-}
 
 export default async function EditProductPage({
   params,
