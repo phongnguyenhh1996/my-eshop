@@ -1,24 +1,18 @@
 // file: app/[locale]/[...slug]/page.tsx (simplified example)
 import { Banner } from "@/components/elements/Banner";
 import { Footer } from "@/components/elements/Footer";
-import { Hero } from "@/components/elements/Hero";
+import { Hero, HeroProps } from "@/components/elements/Hero";
 import { HighlightProducts } from "@/components/elements/HighlightProducts";
 import { Hightlight } from "@/components/elements/Hightlight";
-import { MainNav } from "@/components/elements/MainNav";
-import { TopInfor } from "@/components/elements/TopInfor";
+import { MainNav, MainNavProps } from "@/components/elements/MainNav";
+import { TopInfor, TopInforProps } from "@/components/elements/TopInfor";
 import prisma from "@/lib/prisma";
 import { notFound } from "next/navigation";
-
-// --- 2. Create a map to link identifiers to components ---
-interface TopInforData {
-  tel: string;
-  email: string;
-}
 
 interface PageContent {
   id: string;
   type: keyof typeof componentMap;
-  data: TopInforData;
+  data: TopInforProps | MainNavProps | HeroProps;
 }
 
 const componentMap = {
@@ -33,7 +27,8 @@ const componentMap = {
 
 export default async function DynamicPage({ params }: { params: { slug: string[], locale: string } }) {
     const { slug: slugParam, locale } = await params
-    const slug = slugParam ? slugParam.join('/') : '/';
+    const slug = slugParam ? '/' + slugParam.join('/') : '/';
+    console.log('slug', slug)
 
     const products = await prisma.product.findMany({
     orderBy: {

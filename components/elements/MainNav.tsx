@@ -25,27 +25,19 @@ import {
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { useTranslations } from "next-intl";
-type NavItem = {
-  id: string;
-  key: string;
-  value: string;
-};
 
 type Navname = {
   id: string;
-  value: NavItem[];
+  link: string;
+  name: string;
 };
-interface MainNavProps {
-  nav: Navname[];
+export interface MainNavProps {
+  nav?: Navname[];
 }
 
-export function MainNav({ nav }: MainNavProps) {
+export function MainNav({ nav = [] }: MainNavProps) {
   const t = useTranslations("HomePage");
 
-  function getValuebyKey(item: Navname, key: string): string {
-    return item.value.find(v => v.key === key)?.value || ''
-  }
-  
   return (
     <div className="container mx-auto px-3 flex place-content-between">
       <img src="/logo.svg" alt="My E-Shop Logo" width="150" height="40" />
@@ -57,7 +49,7 @@ export function MainNav({ nav }: MainNavProps) {
                 asChild
                 className={navigationMenuTriggerStyle()}
               >
-                <Link href={getValuebyKey(item, 'link')}>{getValuebyKey(item, 'name')}</Link>
+                <Link href={item.link}>{item.name}</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
           ))}

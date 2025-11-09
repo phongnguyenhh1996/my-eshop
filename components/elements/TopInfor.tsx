@@ -5,7 +5,12 @@ import { useTranslations } from "next-intl";
 
 import Link from "next/link";
 
-export function TopInfor({ tel, email }: { tel: string; email: string }) {
+export interface TopInforProps {
+  tel?: string;
+  email?: string;
+}
+
+export function TopInfor({ tel, email }: TopInforProps) {
   const t = useTranslations("HomePage");
   return (
     <div className="bg-gray-800 py-2">

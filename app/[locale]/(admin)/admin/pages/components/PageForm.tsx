@@ -24,6 +24,8 @@ import { Loader2, Plus, Trash2, ArrowUp, ArrowDown } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrayFieldRenderer } from "./ArrayRender";
 import { ObjectRender } from "./ObjectRender"
+import { ElementRenderer } from "./ElementRenderer";
+import type { SchemaField } from "../../elements/components/SchemaFieldList";
 
 // --- Helper Type Definitions ---
 // This defines the shape of the Page data we expect
@@ -41,12 +43,6 @@ type ContentElement = {
   data: { [key: string]: unknown }; // The actual content (e.g., { title: "..." })
 };
 
-// This is the structure of a blueprint's schema field
-type SchemaField = {
-  name: string;
-  label: string;
-  type: string;
-};
 
 // --- Prop Definition ---
 type SaveResult = {
@@ -160,81 +156,20 @@ export function PageForm({
           </div>
         </div>
 
-        {(blueprint.schema as SchemaField[]).map((field) => {
-          const value = element.data[field.name] as string | undefined;
-
-          switch (field.type) {
-            case "text":
-              return (
-                <div key={field.name} className="space-y-2">
-                  <Label>{field.label}</Label>
-                  <Input
-                    type="text"
-                    value={value || ""}
-                    onChange={(e) =>
-                      updateElementData(element.id, field.name, e.target.value)
-                    }
-                  />
-                </div>
-              );
-            case "textarea":
-              return (
-                <div key={field.name} className="space-y-2">
-                  <Label>{field.label}</Label>
-                  <Textarea
-                    value={value || ""}
-                    onChange={(e) =>
-                      updateElementData(element.id, field.name, e.target.value)
-                    }
-                  />
-                </div>
-              );
-            case "image":
-              return (
-                <div key={field.name} className="space-y-2">
-                  <Label>{field.label}</Label>
-                  <Input
-                    type="text"
-                    placeholder="Enter Image URL..."
-                    value={value || ""}
-                    onChange={(e) =>
-                      updateElementData(element.id, field.name, e.target.value)
-                    }
-                  />
-                </div>
-              );
-            case "array":
-              return (
-                <ArrayFieldRenderer
-                  key={field.name}
-                  elementId={element.id}
-                  field={field}
-                  value={value}
-                  updateElementData={updateElementData}
-                />
-              );
-            case "object":
-              return (
-                <ObjectRender
-                  key={field.name}
-                  elementId={element.id}
-                  field={field}
-                  value={value} // Pass the current value (or undefined)
-                  updateElementData={updateElementData}
-                />
-              );
-            default:
-              return (
-                <div key={field.name}>
-                  <Label>{field.label}</Label>
-                  <Input type="text" value={value || ""} disabled />
-                  <p className="text-sm text-red-500">
-                    Unknown field type: {field.type}
-                  </p>
-                </div>
-              );
-          }
-        })}
+        <ElementRenderer
+          schema={blueprint.schema as SchemaField[]}
+          data={element.data}
+          onDataChange={(fieldName: string, value: unknown) => {
+            // This is the 'updateElementData' logic
+            setContent(prev =>
+              prev.map(el =>
+                el.id === element.id
+                  ? { ...el, data: { ...el.data, [fieldName]: value } }
+                  : el
+              )
+            );
+          }}
+        />
       </div>
     );
   };
