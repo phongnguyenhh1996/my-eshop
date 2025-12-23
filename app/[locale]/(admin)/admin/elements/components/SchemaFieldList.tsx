@@ -22,6 +22,7 @@ const inputTypes = [
   { value: "text", label: "Text" },
   { value: "textarea", label: "Text Area" },
   { value: "image", label: "Image" },
+  { value: "icon", label: "Icon" },
   { value: "array", label: "Array (List)" },
   { value: "object", label: "Object (Nested Fields)" },
 ];

@@ -24,7 +24,10 @@ export function Hero({ slide = [] }: HeroProps) {
       <CarouselContent>
         {slide.map((item, index) => (
           <CarouselItem key={index}>
-            <div className={`w-full h-[22vh] md:h-[50vh] lg:h-[calc(100vh-100px)] bg-[url(${item.bg_img})] bg-cover`}>
+            <div
+              style={{ backgroundImage: `url(${item.bg_img})` }}
+              className={`w-full h-[22vh] md:h-[50vh] lg:h-[calc(100vh-100px)] bg-cover`}
+            >
               <div className="container h-full mx-auto px-3 flex">
                 <div className="my-auto">
                   <h5 className="text-lg lg:text-2xl mb-2 text-gray-950 font-medium">

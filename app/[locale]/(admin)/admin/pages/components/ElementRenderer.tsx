@@ -6,6 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
+import { ImageUploader } from "@/components/image-uploader";
+import { IconSelector } from "@/components/icon-selector";
 import { SchemaField } from "../../elements/components/SchemaFieldList"; // Import the type
 
 interface ElementRendererProps {
@@ -49,15 +51,23 @@ export function ElementRenderer({ schema, data, onDataChange }: ElementRendererP
         );
       case "image":
         return (
-          <div key={field.name} className="space-y-2">
-            <Label>{field.label}</Label>
-            <Input
-              type="text"
-              placeholder="Enter Image URL..."
+          <div key={field.name}>
+            <ImageUploader
+              label={field.label}
               value={(value as string) || ""}
-              onChange={(e) => onDataChange(field.name, e.target.value)}
+              onChange={(url) => onDataChange(field.name, url)}
+              aspect={51/20}
             />
           </div>
+        );
+      case "icon":
+        return (
+          <IconSelector
+            key={field.name}
+            label={field.label}
+            value={(value as string) || ""}
+            onChange={(iconName) => onDataChange(field.name, iconName)}
+          />
         );
       
       case "object":

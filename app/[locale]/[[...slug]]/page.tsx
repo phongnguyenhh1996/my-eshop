@@ -1,9 +1,10 @@
 // file: app/[locale]/[...slug]/page.tsx (simplified example)
 import { Banner } from "@/components/elements/Banner";
+import { BannerProps } from "@/components/elements/Banner";
 import { Footer } from "@/components/elements/Footer";
 import { Hero, HeroProps } from "@/components/elements/Hero";
 import { HighlightProducts } from "@/components/elements/HighlightProducts";
-import { Hightlight } from "@/components/elements/Hightlight";
+import { Hightlight, HightlightProps } from "@/components/elements/Hightlight";
 import { MainNav, MainNavProps } from "@/components/elements/MainNav";
 import { TopInfor, TopInforProps } from "@/components/elements/TopInfor";
 import prisma from "@/lib/prisma";
@@ -12,7 +13,7 @@ import { notFound } from "next/navigation";
 interface PageContent {
   id: string;
   type: keyof typeof componentMap;
-  data: TopInforProps | MainNavProps | HeroProps;
+  data: TopInforProps | MainNavProps | HeroProps | HightlightProps | BannerProps;
 }
 
 const componentMap = {
@@ -28,7 +29,6 @@ const componentMap = {
 export default async function DynamicPage({ params }: { params: { slug: string[], locale: string } }) {
     const { slug: slugParam, locale } = await params
     const slug = slugParam ? '/' + slugParam.join('/') : '/';
-    console.log('slug', slug)
 
     const products = await prisma.product.findMany({
     orderBy: {

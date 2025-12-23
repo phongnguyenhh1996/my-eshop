@@ -11,10 +11,17 @@ import { Slider } from "./ui/slider";
 import { getCroppedImg } from "@/lib/crop-image";
 
 interface ImageUploaderProps {
-  // This 'name' will be used for the hidden input
-  name: string;
-  // This 'defaultValue' will be the existing image URL (if any)
+  // This 'name' will be used for the hidden input (for form submission)
+  name?: string;
+  // This 'defaultValue' or 'value' will be the existing image URL (if any)
   defaultValue?: string | null;
+  value?: string;
+  // Optional onChange callback for controlled component pattern
+  onChange?: (url: string) => void;
+  // Optional label override
+  label?: string;
+  // Optional aspect ratio for cropping (undefined = free crop)
+  aspect?: number;
 }
 
 // !! IMPORTANT !!
@@ -22,8 +29,17 @@ interface ImageUploaderProps {
 const CLOUDINARY_CLOUD_NAME = "easy-toeic";
 const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
-export function ImageUploader({ name, defaultValue }: ImageUploaderProps) {
-  const [url, setUrl] = useState(defaultValue || "");
+export function ImageUploader({ 
+  name, 
+  defaultValue, 
+  value: controlledValue,
+  onChange,
+  label = "Product Image",
+  aspect = 132/169
+}: ImageUploaderProps) {
+  const isControlled = controlledValue !== undefined;
+  const [internalUrl, setInternalUrl] = useState(defaultValue || "");
+  const url = isControlled ? controlledValue : internalUrl;
   const [isLoading, setIsLoading] = useState(false);
 
   // State for the cropper modal
@@ -73,7 +89,11 @@ export function ImageUploader({ name, defaultValue }: ImageUploaderProps) {
       const data = await response.json();
 
       if (data.secure_url) {
-        setUrl(data.secure_url);
+        if (onChange) {
+          onChange(data.secure_url);
+        } else {
+          setInternalUrl(data.secure_url);
+        }
       }
     } catch (error) {
       console.error("Upload failed:", error);
@@ -89,9 +109,17 @@ export function ImageUploader({ name, defaultValue }: ImageUploaderProps) {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
   
+  const handleUrlChange = (newUrl: string) => {
+    if (onChange) {
+      onChange(newUrl);
+    } else {
+      setInternalUrl(newUrl);
+    }
+  };
+
   return (
     <div className="space-y-2">
-      <Label htmlFor="image-upload">Product Image</Label>
+      <Label htmlFor={`image-upload-${name || 'default'}`}>{label}</Label>
       <div className="w-full h-48 border-2 border-dashed border-muted-foreground/30 rounded-lg flex items-center justify-center relative">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
@@ -99,9 +127,9 @@ export function ImageUploader({ name, defaultValue }: ImageUploaderProps) {
           </div>
         )}
 
-        {/* 3. Show the image preview */}
+        {/* Show the image preview */}
         {url ? (
-          <img src={url} alt="Product preview" className="object-contain h-full w-full p-2" />
+          <img src={url} alt="Preview" className="object-contain h-full w-full p-2" />
         ) : (
           <div className="text-center text-muted-foreground">
             <ImageIcon className="w-12 h-12 mx-auto" />
@@ -110,15 +138,26 @@ export function ImageUploader({ name, defaultValue }: ImageUploaderProps) {
         )}
       </div>
 
+      {/* URL Input */}
       <Input
-        id="image-upload"
+        type="text"
+        placeholder="Enter Image URL..."
+        value={url}
+        onChange={(e) => handleUrlChange(e.target.value)}
+        disabled={isLoading}
+      />
+
+      {/* File Upload Input */}
+      <Input
+        id={`image-upload-${name || 'default'}`}
         type="file"
+        accept="image/*"
         onChange={onFileChange}
         disabled={isLoading}
       />
 
-      {/* 4. This hidden input holds the URL for the Server Action */}
-      <input type="hidden" name={name} value={url} />
+      {/* Hidden input for form submission (only if name is provided) */}
+      {name && <input type="hidden" name={name} value={url} />}
 
       {/* --- CROPPER MODAL --- */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -131,7 +170,7 @@ export function ImageUploader({ name, defaultValue }: ImageUploaderProps) {
               image={imageSrc || ""}
               crop={crop}
               zoom={zoom}
-              aspect={132/169}
+              aspect={aspect}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}

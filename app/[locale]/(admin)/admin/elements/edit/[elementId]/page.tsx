@@ -7,7 +7,7 @@ export default async function CreateElementPage({params}: { params: { elementId:
   const { elementId } = await params
   const element = await getElementById(elementId)
   return (
-    <Card className="max-w-2xl mx-auto">
+    <Card className="max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Create New Element Blueprint</CardTitle>
         <CardDescription>
